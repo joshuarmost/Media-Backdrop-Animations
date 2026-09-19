@@ -10,6 +10,7 @@ description: >
   in the Jellyfin web client.
 category: "General"
 owner: "Joshua Most"
+imageUrl: "https://raw.githubusercontent.com/joshuarmost/Media-Backdrop-Animations/main/logo.svg"
 artifacts:
 - "Jellyfin.Plugin.MediaBackdropAnimations.dll"
 changelog: >

@@ -22,6 +22,7 @@ env:
   SOLUTION: Jellyfin.Plugin.MediaBackdropAnimations.slnx
   DLL_NAME: Jellyfin.Plugin.MediaBackdropAnimations.dll
   PLUGIN_GUID: 4c9548d5-caf7-4aac-ac78-82213e69fbf4
+  IMAGE_URL: https://raw.githubusercontent.com/${{ github.repository }}/main/logo.svg
 
 jobs:
   release:
@@ -104,8 +105,9 @@ jobs:
             '{version: $version, changelog: ("Release " + $version + ". See GitHub release notes."), targetAbi: "12.0.0.0", sourceUrl: $sourceUrl, checksum: $checksum, timestamp: $timestamp}')"
           plugin_entry="$(jq -n \
             --arg guid "$PLUGIN_GUID" \
+            --arg imageUrl "$IMAGE_URL" \
             --argjson version "$version_entry" \
-            '{guid: $guid, name: "Media Backdrop Animations", overview: "Animated artwork slideshows for Jellyfin home library cards.", description: "Adds animated backdrop or primary-art slideshows to configured library cards in the Jellyfin web client.", category: "General", owner: "Joshua Most", versions: [$version]}')"
+            '{guid: $guid, name: "Media Backdrop Animations", overview: "Animated artwork slideshows for Jellyfin home library cards.", description: "Adds animated backdrop or primary-art slideshows to configured library cards in the Jellyfin web client.", category: "General", owner: "Joshua Most", imageUrl: $imageUrl, versions: [$version]}')"
 
           if [[ -f manifest.json ]]; then
             jq --arg guid "$PLUGIN_GUID" --argjson version "$version_entry" --argjson plugin "$plugin_entry" '
