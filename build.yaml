@@ -1,0 +1,16 @@
+---
+name: "Media Backdrop Animations"
+guid: "4c9548d5-caf7-4aac-ac78-82213e69fbf4"
+version: "1.0.0.0"
+targetAbi: "10.11.0.0"
+framework: "net9.0"
+overview: "Animated artwork slideshows for Jellyfin home library cards."
+description: >
+  Adds animated backdrop or primary-art slideshows to configured library cards
+  in the Jellyfin web client.
+category: "General"
+owner: "Joshua Most"
+artifacts:
+- "Jellyfin.Plugin.MediaBackdropAnimations.dll"
+changelog: >
+  Initial release.

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Media Backdrop Animations</title>
+</head>
+<body>
+    <div id="MediaBackdropAnimationsConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-select,emby-checkbox">
+        <div data-role="content">
+            <div class="content-primary">
+                <form id="MediaBackdropAnimationsConfigForm">
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
+                            <input id="Enabled" type="checkbox" is="emby-checkbox" />
+                            <span>Enable animated library cards</span>
+                        </label>
+                        <div class="fieldDescription">After saving, refresh Jellyfin in each browser to apply the change.</div>
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="IntervalMilliseconds">Frame interval (milliseconds)</label>
+                        <input id="IntervalMilliseconds" type="number" is="emby-input" min="100" max="10000" />
+                        <div class="fieldDescription">300 is the original animation speed. Larger values use less CPU.</div>
+                    </div>
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="inputLabel inputLabelUnfocused" for="ImageWidth">Requested image width</label>
+                        <input id="ImageWidth" type="number" is="emby-input" min="64" max="1920" />
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="MaxItemsPerLibrary">Images per library</label>
+                        <input id="MaxItemsPerLibrary" type="number" is="emby-input" min="1" max="500" />
+                        <div class="fieldDescription">Only these candidates are preloaded when the home screen appears.</div>
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputLabel">Library cards</label>
+                        <div id="LibraryCards"></div>
+                        <button is="emby-button" type="button" id="AddLibrary" class="raised emby-button">
+                            <span>Add library card</span>
+                        </button>
+                    </div>
+                    <div>
+                        <button is="emby-button" type="submit" class="raised button-submit block emby-button">
+                            <span>Save</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <script type="text/javascript">
+            var MediaBackdropAnimationsConfig = {
+                pluginUniqueId: '4c9548d5-caf7-4aac-ac78-82213e69fbf4'
+            };
+
+            function escapeHtml(value) {
+                return String(value || '').replace(/[&<>\"']/g, function (character) {
+                    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', "'": '&#39;' }[character];
+                });
+            }
+
+            function renderLibraries(libraries) {
+                document.querySelector('#LibraryCards').innerHTML = libraries.map(function (library, index) {
+                    return '<div class="paperList" data-library-index="' + index + '" style="padding:1em;margin-bottom:1em">' +
+                        '<div class="inputContainer"><label class="inputLabel">Library ID</label><input class="library-id" type="text" is="emby-input" value="' + escapeHtml(library.Id) + '"></div>' +
+                        '<div class="inputContainer"><label class="inputLabel">Title</label><input class="library-title" type="text" is="emby-input" value="' + escapeHtml(library.Title) + '"></div>' +
+                        '<div class="inputContainer"><label class="inputLabel">Item type (optional)</label><input class="library-item-types" type="text" is="emby-input" value="' + escapeHtml(library.IncludeItemTypes) + '"></div>' +
+                        '<div class="selectContainer"><label class="selectLabel">Image type</label><select class="library-image-type" is="emby-select"><option value="Backdrop"' + (library.ImageType === 'Backdrop' ? ' selected' : '') + '>Backdrop</option><option value="Primary"' + (library.ImageType === 'Primary' ? ' selected' : '') + '>Primary</option></select></div>' +
+                        '<button is="emby-button" type="button" class="remove-library raised emby-button"><span>Remove</span></button>' +
+                        '</div>';
+                }).join('');
+            }
+
+            function readLibraries() {
+                return Array.prototype.slice.call(document.querySelectorAll('[data-library-index]')).map(function (row) {
+                    return {
+                        Id: row.querySelector('.library-id').value.trim(),
+                        Title: row.querySelector('.library-title').value.trim(),
+                        IncludeItemTypes: row.querySelector('.library-item-types').value.trim() || null,
+                        ImageType: row.querySelector('.library-image-type').value
+                    };
+                }).filter(function (library) { return library.Id && library.Title; });
+            }
+
+            document.querySelector('#MediaBackdropAnimationsConfigPage')
+                .addEventListener('pageshow', function() {
+                    Dashboard.showLoadingMsg();
+                    ApiClient.getPluginConfiguration(MediaBackdropAnimationsConfig.pluginUniqueId).then(function (config) {
+                        document.querySelector('#Enabled').checked = config.Enabled;
+                        document.querySelector('#IntervalMilliseconds').value = config.IntervalMilliseconds;
+                        document.querySelector('#ImageWidth').value = config.ImageWidth;
+                        document.querySelector('#MaxItemsPerLibrary').value = config.MaxItemsPerLibrary;
+                        renderLibraries(config.Libraries || []);
+                        Dashboard.hideLoadingMsg();
+                    });
+                });
+
+            document.querySelector('#AddLibrary').addEventListener('click', function () {
+                renderLibraries(readLibraries().concat([{ Id: '', Title: '', IncludeItemTypes: '', ImageType: 'Backdrop' }]));
+            });
+
+            document.querySelector('#LibraryCards').addEventListener('click', function (event) {
+                if (event.target.closest('.remove-library')) {
+                    event.target.closest('[data-library-index]').remove();
+                }
+            });
+
+            document.querySelector('#MediaBackdropAnimationsConfigForm')
+                .addEventListener('submit', function(e) {
+                Dashboard.showLoadingMsg();
+                ApiClient.getPluginConfiguration(MediaBackdropAnimationsConfig.pluginUniqueId).then(function (config) {
+                    config.Enabled = document.querySelector('#Enabled').checked;
+                    config.IntervalMilliseconds = Number(document.querySelector('#IntervalMilliseconds').value);
+                    config.ImageWidth = Number(document.querySelector('#ImageWidth').value);
+                    config.MaxItemsPerLibrary = Number(document.querySelector('#MaxItemsPerLibrary').value);
+                    config.Libraries = readLibraries();
+                    ApiClient.updatePluginConfiguration(MediaBackdropAnimationsConfig.pluginUniqueId, config).then(function (result) {
+                        Dashboard.processPluginConfigurationUpdateResult(result);
+                    });
+                });
+
+                e.preventDefault();
+                return false;
+            });
+        </script>
+    </div>
+</body>
+</html>
