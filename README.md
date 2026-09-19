@@ -1,5 +1,7 @@
 # Media Backdrop Animations
 
+Add this repository to Jellyfin with this URL: https://raw.githubusercontent.com/joshuarmost/Media-Backdrop-Animations/main/manifest.json
+
 Media Backdrop Animations adds a fast artwork slideshow to selected library cards on the Jellyfin web home screen. On hover, the card cycles through randomly shuffled backdrop art (or primary art for libraries such as music, books, and playlists).
 
 ## What it does
