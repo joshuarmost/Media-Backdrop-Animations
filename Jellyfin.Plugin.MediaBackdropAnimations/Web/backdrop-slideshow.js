@@ -59,7 +59,9 @@
         const query = {
             ParentId: library.Id,
             Recursive: true,
-            Fields: library.ImageType === 'Backdrop' ? 'BackdropImageTags' : 'PrimaryImageAspectRatio',
+            Fields: library.ImageType === 'Backdrop'
+                ? 'BackdropImageTags'
+                : 'BackdropImageTags,PrimaryImageAspectRatio',
             Limit: configuration.MaxItemsPerLibrary
         };
         if (library.IncludeItemTypes) {
@@ -151,6 +153,8 @@
                     state.images = [];
                 });
         }
+
+        await state.imagePromise;
 
         if (!state.listenersAttached) {
             state.listenersAttached = true;
