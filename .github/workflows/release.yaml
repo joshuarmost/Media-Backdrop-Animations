@@ -1,0 +1,124 @@
+name: Release plugin
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag to release, for example v1.0.0.0
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: media-backdrop-animations-release
+  cancel-in-progress: false
+
+env:
+  SOLUTION: Jellyfin.Plugin.MediaBackdropAnimations.slnx
+  DLL_NAME: Jellyfin.Plugin.MediaBackdropAnimations.dll
+  PLUGIN_GUID: 4c9548d5-caf7-4aac-ac78-82213e69fbf4
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out version tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref_name }}
+          fetch-depth: 0
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Validate version and package plugin
+        id: package
+        shell: bash
+        run: |
+          tag='${{ inputs.tag || github.ref_name }}'
+          version="${tag#v}"
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Tags must be formatted vMAJOR.MINOR.PATCH.BUILD, for example v1.0.0.0." >&2
+            exit 1
+          fi
+
+          dotnet restore "$SOLUTION"
+          dotnet publish "$SOLUTION" --configuration Release --no-restore --output publish \
+            -p:Version="$version" -p:AssemblyVersion="$version" -p:FileVersion="$version"
+          node --check Jellyfin.Plugin.MediaBackdropAnimations/Web/backdrop-slideshow.js
+
+          asset="MediaBackdropAnimations_${version}.zip"
+          mkdir -p release
+          zip -j "release/$asset" "publish/$DLL_NAME" "publish/${DLL_NAME%.dll}.xml"
+          checksum="$(md5sum "release/$asset" | awk '{print $1}')"
+          printf '%s  %s\n' "$checksum" "$asset" > "release/$asset.md5"
+
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "asset=$asset" >> "$GITHUB_OUTPUT"
+          echo "checksum=$checksum" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.package.outputs.tag }}
+          ASSET: ${{ steps.package.outputs.asset }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "release/$ASSET" "release/$ASSET.md5" --clobber
+          else
+            gh release create "$TAG" "release/$ASSET" "release/$ASSET.md5" --title "$TAG" --generate-notes
+          fi
+
+      - name: Update Jellyfin catalog manifest
+        env:
+          TAG: ${{ steps.package.outputs.tag }}
+          VERSION: ${{ steps.package.outputs.version }}
+          ASSET: ${{ steps.package.outputs.asset }}
+          CHECKSUM: ${{ steps.package.outputs.checksum }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch origin "$DEFAULT_BRANCH"
+          git checkout -B "$DEFAULT_BRANCH" "origin/$DEFAULT_BRANCH"
+
+          source_url="https://github.com/$GITHUB_REPOSITORY/releases/download/$TAG/$ASSET"
+          released_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          version_entry="$(jq -n \
+            --arg version "$VERSION" \
+            --arg sourceUrl "$source_url" \
+            --arg checksum "$CHECKSUM" \
+            --arg timestamp "$released_at" \
+            '{version: $version, changelog: ("Release " + $version + ". See GitHub release notes."), targetAbi: "10.11.0.0", sourceUrl: $sourceUrl, checksum: $checksum, timestamp: $timestamp}')"
+          plugin_entry="$(jq -n \
+            --arg guid "$PLUGIN_GUID" \
+            --argjson version "$version_entry" \
+            '{guid: $guid, name: "Media Backdrop Animations", overview: "Animated artwork slideshows for Jellyfin home library cards.", description: "Adds animated backdrop or primary-art slideshows to configured library cards in the Jellyfin web client.", category: "General", owner: "Joshua Most", versions: [$version]}')"
+
+          if [[ -f manifest.json ]]; then
+            jq --arg guid "$PLUGIN_GUID" --argjson version "$version_entry" --argjson plugin "$plugin_entry" '
+              if any(.[]; .guid == $guid) then
+                map(if .guid == $guid then .versions = [$version] + ((.versions // []) | map(select(.version != $version.version))) else . end)
+              else . + [$plugin] end
+            ' manifest.json > manifest.json.new
+          else
+            jq -n --argjson plugin "$plugin_entry" '[$plugin]' > manifest.json.new
+          fi
+          mv manifest.json.new manifest.json
+
+          git add manifest.json
+          git diff --cached --quiet || git commit -m "chore: publish $TAG"
+          git push origin "HEAD:$DEFAULT_BRANCH"
+
+          echo "## Jellyfin catalog" >> "$GITHUB_STEP_SUMMARY"
+          echo "Add this repository URL in Jellyfin after the workflow finishes:" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$DEFAULT_BRANCH/manifest.json\`" >> "$GITHUB_STEP_SUMMARY"

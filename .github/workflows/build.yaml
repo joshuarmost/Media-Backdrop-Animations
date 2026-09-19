@@ -1,18 +1,56 @@
-name: '🏗️ Build Plugin'
+name: Build plugin
 
 on:
   push:
     branches:
+      - main
       - master
+    tags:
+      - 'v*'
     paths-ignore:
       - '**/*.md'
   pull_request:
     branches:
+      - main
       - master
     paths-ignore:
       - '**/*.md'
   workflow_dispatch:
 
 jobs:
-  call:
-    uses: jellyfin/jellyfin-meta-plugins/.github/workflows/build.yaml@master
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore packages
+        run: dotnet restore Jellyfin.Plugin.MediaBackdropAnimations.slnx
+
+      - name: Check client-script syntax
+        run: node --check Jellyfin.Plugin.MediaBackdropAnimations/Web/backdrop-slideshow.js
+
+      - name: Build plugin
+        run: dotnet build Jellyfin.Plugin.MediaBackdropAnimations.slnx --configuration Release --no-restore
+
+      - name: Stage installable plugin
+        run: |
+          mkdir -p artifact
+          cp Jellyfin.Plugin.MediaBackdropAnimations/bin/Release/net9.0/Jellyfin.Plugin.MediaBackdropAnimations.dll artifact/
+          cp Jellyfin.Plugin.MediaBackdropAnimations/bin/Release/net9.0/Jellyfin.Plugin.MediaBackdropAnimations.xml artifact/
+          cd artifact
+          zip -j MediaBackdropAnimations-ci.zip Jellyfin.Plugin.MediaBackdropAnimations.dll Jellyfin.Plugin.MediaBackdropAnimations.xml
+
+      - name: Upload installable ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: MediaBackdropAnimations
+          path: artifact/MediaBackdropAnimations-ci.zip
+          if-no-files-found: error
