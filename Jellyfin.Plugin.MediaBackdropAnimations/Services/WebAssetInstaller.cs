@@ -16,7 +16,7 @@ namespace Jellyfin.Plugin.MediaBackdropAnimations.Services;
 public sealed class WebAssetInstaller : IHostedService
 {
     private const string Marker = "<!-- Media Backdrop Animations plugin -->";
-    private const string ScriptTag = "<script defer src=\"plugins/media-backdrop-animations/backdrop-slideshow.js?v=1.0.0\"></script>";
+    private const string ScriptTag = "<script defer src=\"plugins/media-backdrop-animations/backdrop-slideshow.js?v=2.0.0\"></script>";
     private const string ResourceName = "Jellyfin.Plugin.MediaBackdropAnimations.Web.backdrop-slideshow.js";
 
     private readonly IApplicationPaths _applicationPaths;

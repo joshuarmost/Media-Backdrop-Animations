@@ -28,8 +28,10 @@
   <ItemGroup>
     <None Remove="Configuration\configPage.html" />
     <EmbeddedResource Include="Configuration\configPage.html" />
-    <None Remove="Web\backdrop-slideshow.js" />
-    <EmbeddedResource Include="Web\backdrop-slideshow.js" />
+    <EmbeddedResource Include="..\script.js">
+      <Link>Web\backdrop-slideshow.js</Link>
+      <LogicalName>Jellyfin.Plugin.MediaBackdropAnimations.Web.backdrop-slideshow.js</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>
