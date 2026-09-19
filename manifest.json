@@ -1,0 +1,20 @@
+[
+  {
+    "guid": "4c9548d5-caf7-4aac-ac78-82213e69fbf4",
+    "name": "Media Backdrop Animations",
+    "overview": "Animated artwork slideshows for Jellyfin home library cards.",
+    "description": "Adds animated backdrop or primary-art slideshows to configured library cards in the Jellyfin web client.",
+    "category": "General",
+    "owner": "Joshua Most",
+    "versions": [
+      {
+        "version": "1.0.0.0",
+        "changelog": "Initial release.",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://github.com/joshuarmost/Media-Backdrop-Animations/releases/download/v1.0.0.0/MediaBackdropAnimations_1.0.0.0.zip",
+        "checksum": "68db683a6e3d7f8a6d845146b5aeacd6",
+        "timestamp": "2026-09-19T17:46:11Z"
+      }
+    ]
+  }
+]

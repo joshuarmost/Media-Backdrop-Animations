@@ -41,12 +41,13 @@ jobs:
         run: dotnet build Jellyfin.Plugin.MediaBackdropAnimations.slnx --configuration Release --no-restore
 
       - name: Stage installable plugin
+        shell: pwsh
         run: |
-          mkdir -p artifact
-          cp Jellyfin.Plugin.MediaBackdropAnimations/bin/Release/net9.0/Jellyfin.Plugin.MediaBackdropAnimations.dll artifact/
-          cp Jellyfin.Plugin.MediaBackdropAnimations/bin/Release/net9.0/Jellyfin.Plugin.MediaBackdropAnimations.xml artifact/
-          cd artifact
-          zip -j MediaBackdropAnimations-ci.zip Jellyfin.Plugin.MediaBackdropAnimations.dll Jellyfin.Plugin.MediaBackdropAnimations.xml
+          ./scripts/package-plugin-archive.ps1 `
+            -OutputZip artifact/MediaBackdropAnimations-ci.zip `
+            -InputFiles `
+              Jellyfin.Plugin.MediaBackdropAnimations/bin/Release/net9.0/Jellyfin.Plugin.MediaBackdropAnimations.dll, `
+              Jellyfin.Plugin.MediaBackdropAnimations/bin/Release/net9.0/Jellyfin.Plugin.MediaBackdropAnimations.xml
 
       - name: Upload installable ZIP
         uses: actions/upload-artifact@v4

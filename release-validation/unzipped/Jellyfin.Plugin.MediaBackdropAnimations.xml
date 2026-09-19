@@ -1,0 +1,152 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Jellyfin.Plugin.MediaBackdropAnimations</name>
+    </assembly>
+    <members>
+        <member name="T:Jellyfin.Plugin.MediaBackdropAnimations.Api.ClientConfiguration">
+            <summary>
+            The public subset of configuration consumed by the web client.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.MediaBackdropAnimations.Api.ClientConfiguration.#ctor(Jellyfin.Plugin.MediaBackdropAnimations.Configuration.PluginConfiguration)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Jellyfin.Plugin.MediaBackdropAnimations.Api.ClientConfiguration"/> class.
+            </summary>
+            <param name="configuration">The persisted plugin configuration.</param>
+        </member>
+        <member name="P:Jellyfin.Plugin.MediaBackdropAnimations.Api.ClientConfiguration.Enabled">
+            <summary>Gets a value indicating whether the enhancement is enabled.</summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.MediaBackdropAnimations.Api.ClientConfiguration.IntervalMilliseconds">
+            <summary>Gets the hover animation interval.</summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.MediaBackdropAnimations.Api.ClientConfiguration.ImageWidth">
+            <summary>Gets the requested image width.</summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.MediaBackdropAnimations.Api.ClientConfiguration.MaxItemsPerLibrary">
+            <summary>Gets the per-library candidate image limit.</summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.MediaBackdropAnimations.Api.ClientConfiguration.Libraries">
+            <summary>Gets the configured library cards.</summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.MediaBackdropAnimations.Api.ConfigurationController">
+            <summary>
+            Provides the non-sensitive settings required by the web-client asset.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.MediaBackdropAnimations.Api.ConfigurationController.Get">
+            <summary>
+            Gets the settings used by the client-side slideshow.
+            </summary>
+            <returns>The client-safe plugin configuration.</returns>
+        </member>
+        <member name="T:Jellyfin.Plugin.MediaBackdropAnimations.Configuration.LibraryCardConfiguration">
+            <summary>
+            A configured Jellyfin library card.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.MediaBackdropAnimations.Configuration.LibraryCardConfiguration.Id">
+            <summary>
+            Gets or sets the Jellyfin library identifier.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.MediaBackdropAnimations.Configuration.LibraryCardConfiguration.Title">
+            <summary>
+            Gets or sets the title shown over the card.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.MediaBackdropAnimations.Configuration.LibraryCardConfiguration.IncludeItemTypes">
+            <summary>
+            Gets or sets the optional Jellyfin item type used to select images.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.MediaBackdropAnimations.Configuration.LibraryCardConfiguration.ImageType">
+            <summary>
+            Gets or sets the image type to use: Backdrop or Primary.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.MediaBackdropAnimations.Configuration.PluginConfiguration">
+            <summary>
+            Plugin configuration.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.MediaBackdropAnimations.Configuration.PluginConfiguration.Enabled">
+            <summary>
+            Gets or sets a value indicating whether animations are enabled.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.MediaBackdropAnimations.Configuration.PluginConfiguration.IntervalMilliseconds">
+            <summary>
+            Gets or sets the interval, in milliseconds, between images while hovering.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.MediaBackdropAnimations.Configuration.PluginConfiguration.ImageWidth">
+            <summary>
+            Gets or sets the maximum width requested for each image.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.MediaBackdropAnimations.Configuration.PluginConfiguration.MaxItemsPerLibrary">
+            <summary>
+            Gets or sets the maximum number of candidate images fetched per library.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.MediaBackdropAnimations.Configuration.PluginConfiguration.Libraries">
+            <summary>
+            Gets or sets the library cards that receive animated artwork.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.MediaBackdropAnimations.Plugin">
+            <summary>
+            The main plugin.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.MediaBackdropAnimations.Plugin.#ctor(MediaBrowser.Common.Configuration.IApplicationPaths,MediaBrowser.Model.Serialization.IXmlSerializer)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Jellyfin.Plugin.MediaBackdropAnimations.Plugin"/> class.
+            </summary>
+            <param name="applicationPaths">Instance of the <see cref="T:MediaBrowser.Common.Configuration.IApplicationPaths"/> interface.</param>
+            <param name="xmlSerializer">Instance of the <see cref="T:MediaBrowser.Model.Serialization.IXmlSerializer"/> interface.</param>
+        </member>
+        <member name="P:Jellyfin.Plugin.MediaBackdropAnimations.Plugin.Name">
+            <inheritdoc />
+        </member>
+        <member name="P:Jellyfin.Plugin.MediaBackdropAnimations.Plugin.Id">
+            <inheritdoc />
+        </member>
+        <member name="P:Jellyfin.Plugin.MediaBackdropAnimations.Plugin.Instance">
+            <summary>
+            Gets the current plugin instance.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.MediaBackdropAnimations.Plugin.GetPages">
+            <inheritdoc />
+        </member>
+        <member name="T:Jellyfin.Plugin.MediaBackdropAnimations.Services.PluginServiceRegistrator">
+            <summary>
+            Registers services used by the plugin.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.MediaBackdropAnimations.Services.PluginServiceRegistrator.RegisterServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MediaBrowser.Controller.IServerApplicationHost)">
+            <inheritdoc />
+        </member>
+        <member name="T:Jellyfin.Plugin.MediaBackdropAnimations.Services.WebAssetInstaller">
+            <summary>
+            Installs the web-client asset and registers it in Jellyfin's entry page.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.MediaBackdropAnimations.Services.WebAssetInstaller.#ctor(MediaBrowser.Common.Configuration.IApplicationPaths,Microsoft.Extensions.Logging.ILogger{Jellyfin.Plugin.MediaBackdropAnimations.Services.WebAssetInstaller})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Jellyfin.Plugin.MediaBackdropAnimations.Services.WebAssetInstaller"/> class.
+            </summary>
+            <param name="applicationPaths">The Jellyfin application paths.</param>
+            <param name="logger">The plugin logger.</param>
+        </member>
+        <member name="M:Jellyfin.Plugin.MediaBackdropAnimations.Services.WebAssetInstaller.StartAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Jellyfin.Plugin.MediaBackdropAnimations.Services.WebAssetInstaller.StopAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

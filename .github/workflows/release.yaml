@@ -40,30 +40,33 @@ jobs:
 
       - name: Validate version and package plugin
         id: package
-        shell: bash
+        shell: pwsh
         run: |
-          tag='${{ inputs.tag || github.ref_name }}'
-          version="${tag#v}"
-          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Tags must be formatted vMAJOR.MINOR.PATCH.BUILD, for example v1.0.0.0." >&2
-            exit 1
-          fi
+          $tag = '${{ inputs.tag || github.ref_name }}'
+          $version = $tag.Substring(1)
+          if ($version -notmatch '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$') {
+            throw 'Tags must be formatted vMAJOR.MINOR.PATCH.BUILD, for example v1.0.0.0.'
+          }
 
-          dotnet restore "$SOLUTION"
-          dotnet publish "$SOLUTION" --configuration Release --no-restore --output publish \
-            -p:Version="$version" -p:AssemblyVersion="$version" -p:FileVersion="$version"
+          dotnet restore $env:SOLUTION
+          dotnet publish $env:SOLUTION --configuration Release --no-restore --output publish `
+            -p:Version=$version -p:AssemblyVersion=$version -p:FileVersion=$version
           node --check Jellyfin.Plugin.MediaBackdropAnimations/Web/backdrop-slideshow.js
 
-          asset="MediaBackdropAnimations_${version}.zip"
-          mkdir -p release
-          zip -j "release/$asset" "publish/$DLL_NAME" "publish/${DLL_NAME%.dll}.xml"
-          checksum="$(md5sum "release/$asset" | awk '{print $1}')"
-          printf '%s  %s\n' "$checksum" "$asset" > "release/$asset.md5"
+          $asset = "MediaBackdropAnimations_${version}.zip"
+          New-Item -ItemType Directory -Force -Path release | Out-Null
+          ./scripts/package-plugin-archive.ps1 `
+            -OutputZip "release/$asset" `
+            -InputFiles `
+              "publish/$env:DLL_NAME", `
+              "publish/$($env:DLL_NAME -replace '\.dll$', '.xml')"
+          $checksum = (Get-FileHash "release/$asset" -Algorithm MD5).Hash.ToLowerInvariant()
+          Set-Content -Path "release/$asset.md5" -Value "$checksum  $asset"
 
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "asset=$asset" >> "$GITHUB_OUTPUT"
-          echo "checksum=$checksum" >> "$GITHUB_OUTPUT"
+          "tag=$tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "asset=$asset" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "checksum=$checksum" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
       - name: Create or update GitHub release
         env:
