@@ -34,11 +34,11 @@ The plugin assembly is written to `Jellyfin.Plugin.MediaBackdropAnimations/bin/R
 
 GitHub Actions builds the plugin on every push and pull request. Each successful run has a `MediaBackdropAnimations` artifact containing an installable ZIP.
 
-To make a real installable release and update the Jellyfin catalog automatically, push a four-part version tag:
+To make a real installable release and update the Jellyfin catalog automatically, push the `v2` tag:
 
 ```powershell
-git tag v1.0.0.0
-git push origin v1.0.0.0
+git tag v2
+git push origin v2
 ```
 
 The release workflow builds the ZIP, creates a GitHub Release, calculates its MD5 checksum, and commits an updated `manifest.json` to the repository's default branch. Once the workflow completes, add the raw `manifest.json` URL shown in its workflow summary under Dashboard > Plugins > Repositories. The repository must be public for Jellyfin to download its manifest and release ZIP.

@@ -1,7 +1,7 @@
 ---
 name: "Media Backdrop Animations"
 guid: "4c9548d5-caf7-4aac-ac78-82213e69fbf4"
-version: "1.0.0.0"
+version: "2.0.0.0"
 targetAbi: "12.0.0.0"
 framework: "net10.0"
 overview: "Animated artwork slideshows for Jellyfin home library cards."
@@ -10,7 +10,7 @@ description: >
   in the Jellyfin web client.
 category: "General"
 owner: "Joshua Most"
-imageUrl: "https://raw.githubusercontent.com/joshuarmost/Media-Backdrop-Animations/main/logo.svg"
+imageUrl: "https://raw.githubusercontent.com/joshuarmost/Media-Backdrop-Animations/main/logo.png"
 artifacts:
 - "Jellyfin.Plugin.MediaBackdropAnimations.dll"
 changelog: >

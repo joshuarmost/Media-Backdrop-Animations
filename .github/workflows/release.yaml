@@ -22,7 +22,7 @@ env:
   SOLUTION: Jellyfin.Plugin.MediaBackdropAnimations.slnx
   DLL_NAME: Jellyfin.Plugin.MediaBackdropAnimations.dll
   PLUGIN_GUID: 4c9548d5-caf7-4aac-ac78-82213e69fbf4
-  IMAGE_URL: https://raw.githubusercontent.com/${{ github.repository }}/main/logo.svg
+  IMAGE_URL: https://raw.githubusercontent.com/${{ github.repository }}/main/logo.png
 
 jobs:
   release:
@@ -44,9 +44,14 @@ jobs:
         shell: pwsh
         run: |
           $tag = '${{ inputs.tag || github.ref_name }}'
-          $version = $tag.Substring(1)
-          if ($version -notmatch '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$') {
-            throw 'Tags must be formatted vMAJOR.MINOR.PATCH.BUILD, for example v1.0.0.0.'
+          if ($tag -match '^v(?<major>[0-9]+)$') {
+            $version = "$($Matches.major).0.0.0"
+          }
+          elseif ($tag -match '^v(?<version>[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)$') {
+            $version = $Matches.version
+          }
+          else {
+            throw 'Tags must be formatted vMAJOR or vMAJOR.MINOR.PATCH.BUILD, for example v2 or v2.0.0.0.'
           }
 
           dotnet restore $env:SOLUTION

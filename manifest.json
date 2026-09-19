@@ -6,7 +6,7 @@
     "description": "Adds animated backdrop or primary-art slideshows to configured library cards in the Jellyfin web client.",
     "category": "General",
     "owner": "Joshua Most",
-    "imageUrl": "https://raw.githubusercontent.com/joshuarmost/Media-Backdrop-Animations/main/logo.svg",
+    "imageUrl": "https://raw.githubusercontent.com/joshuarmost/Media-Backdrop-Animations/main/logo.png",
     "versions": [
       {
         "version": "1.0.0.0",
