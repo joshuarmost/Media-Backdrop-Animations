@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using MediaBrowser.Common.Configuration;
@@ -77,18 +78,26 @@ public sealed class WebAssetInstaller : IHostedService
 
         var index = File.ReadAllText(indexPath);
         var block = string.Concat(Marker, Environment.NewLine, ScriptTag, Environment.NewLine);
-        if (!index.Contains(Marker, StringComparison.Ordinal))
+        var markerPattern = $"{Regex.Escape(Marker)}\\s*<script[^>]*backdrop-slideshow\\.js[^>]*></script>\\s*";
+
+        if (index.Contains(Marker, StringComparison.Ordinal))
         {
-            var bodyEnd = index.LastIndexOf("</body>", StringComparison.OrdinalIgnoreCase);
-            index = bodyEnd >= 0
-                ? index.Insert(bodyEnd, block)
-                : string.Concat(index, Environment.NewLine, block);
+            index = Regex.Replace(index, markerPattern, block, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            if (!index.Contains(block, StringComparison.Ordinal))
+            {
+                index = Regex.Replace(index, Regex.Escape(Marker), block, RegexOptions.CultureInvariant);
+            }
+
             File.WriteAllText(indexPath, index, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
-            _logger.LogInformation("Installed Media Backdrop Animations into {IndexPath}.", indexPath);
+            _logger.LogInformation("Updated Media Backdrop Animations registration in {IndexPath}.", indexPath);
+            return;
         }
-        else
-        {
-            _logger.LogDebug("Media Backdrop Animations is already registered in {IndexPath}.", indexPath);
-        }
+
+        var bodyEnd = index.LastIndexOf("</body>", StringComparison.OrdinalIgnoreCase);
+        index = bodyEnd >= 0
+            ? index.Insert(bodyEnd, block)
+            : string.Concat(index, Environment.NewLine, block);
+        File.WriteAllText(indexPath, index, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+        _logger.LogInformation("Installed Media Backdrop Animations into {IndexPath}.", indexPath);
     }
 }
