@@ -15,8 +15,8 @@ The initial settings preserve the library IDs and behavior from the original `sc
 
 ## Requirements
 
-- Jellyfin Server 10.11.x, using the web client.
-- .NET 9 SDK to build from source.
+- Jellyfin Server 12.x, using the web client.
+- .NET 10 SDK to build from source.
 - The Jellyfin service account must be able to write its `web` directory and `web/index.html`. This is normally true on Windows installs. For Docker or Linux package installs, the web directory is often root-owned and must be made writable before the plugin can install its client asset.
 
 This enhancement is for Jellyfin Web. Native TV, mobile, Roku, and desktop clients do not load the browser script.
@@ -28,7 +28,7 @@ dotnet restore Jellyfin.Plugin.MediaBackdropAnimations.slnx
 dotnet build Jellyfin.Plugin.MediaBackdropAnimations.slnx -c Release
 ```
 
-The plugin assembly is written to `Jellyfin.Plugin.MediaBackdropAnimations/bin/Release/net9.0/Jellyfin.Plugin.MediaBackdropAnimations.dll`.
+The plugin assembly is written to `Jellyfin.Plugin.MediaBackdropAnimations/bin/Release/net10.0/Jellyfin.Plugin.MediaBackdropAnimations.dll`.
 
 ## GitHub build and release
 

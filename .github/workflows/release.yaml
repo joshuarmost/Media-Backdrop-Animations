@@ -36,7 +36,7 @@ jobs:
       - name: Set up .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: 10.0.x
 
       - name: Validate version and package plugin
         id: package
@@ -101,7 +101,7 @@ jobs:
             --arg sourceUrl "$source_url" \
             --arg checksum "$CHECKSUM" \
             --arg timestamp "$released_at" \
-            '{version: $version, changelog: ("Release " + $version + ". See GitHub release notes."), targetAbi: "10.11.0.0", sourceUrl: $sourceUrl, checksum: $checksum, timestamp: $timestamp}')"
+            '{version: $version, changelog: ("Release " + $version + ". See GitHub release notes."), targetAbi: "12.0.0.0", sourceUrl: $sourceUrl, checksum: $checksum, timestamp: $timestamp}')"
           plugin_entry="$(jq -n \
             --arg guid "$PLUGIN_GUID" \
             --argjson version "$version_entry" \
